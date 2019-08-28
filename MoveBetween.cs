@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 public class MoveBetween : MonoBehaviour
 {
@@ -14,7 +12,7 @@ public class MoveBetween : MonoBehaviour
     [SerializeField] bool movingFordward;
     [SerializeField] bool movingBackward;
 
-    [Header("Position/Objetives")]
+    [Header("Target")]
     private Transform currentTarget;
     private int currentPosition = 0;
 
@@ -22,46 +20,36 @@ public class MoveBetween : MonoBehaviour
     private float totalDistance;
     private float distanceBetween;
     private float actualDistance;
-    // Start is called before the first frame update
+
+
     void Start()
     {
-
         for (int i = 0; i < targets.Count - 1; i++)
         {
             totalDistance += Vector3.Distance(targets[i].position, targets[i + 1].position);
         }
-
-
     }
 
     void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.UpArrow))
-        //{
-        //    StartMovingFordward(5);
-        //}
-        //if (Input.GetKeyDown(KeyCode.DownArrow))
-        //{
-        //    StartMovingBackwards(5);
-        //}
         if (movingFordward)
         {
             MoveForward();
         }
-
-        if (movingBackward)
+        else if (movingBackward)
         {
             MoveBackward();
         }
     }
-
+    /// <summary>
+    /// Move and rotate the object following the array
+    /// </summary>
     private void MoveForward()
     {
         if (transform.position != currentTarget.position)
         {
-
-
             this.transform.position = Vector3.MoveTowards(transform.position, currentTarget.position, (totalDistance / totalTime) * Time.deltaTime);
+            ///Use the distance to get a number between 0 and 1 to make the rotation
             if (followRotation)
             {
                 actualDistance = Vector3.Distance(transform.position, currentTarget.position);
@@ -70,21 +58,23 @@ public class MoveBetween : MonoBehaviour
         }
         else
         {
-
-            //transform.rotation = currentTarget.rotation;
+            ///Finish the movement when it reach the final object of the array
             if (currentTarget == targets[targets.Count - 1])
             {
                 movingFordward = false;
                 return;
             }
-
             ++currentPosition;
             if (followRotation)
+            {
                 distanceBetween = Vector3.Distance(transform.position, targets[currentPosition].position);
+            }
             currentTarget = targets[currentPosition];
         }
     }
-
+    /// <summary>
+    /// Move and rotate the object following the array in reverse order
+    /// </summary>
     private void MoveBackward()
     {
         if (transform.position != currentTarget.position)
@@ -99,6 +89,7 @@ public class MoveBetween : MonoBehaviour
         }
         else
         {
+            ///Finish the movement when it reach the first object of the array
             if (currentTarget == targets[0])
             {
                 movingFordward = false;
@@ -106,12 +97,14 @@ public class MoveBetween : MonoBehaviour
             }
             --currentPosition;
             if (followRotation)
+            {
                 distanceBetween = Vector3.Distance(transform.position, targets[currentPosition].position);
+            }
             currentTarget = targets[currentPosition];
         }
     }
     /// <summary>
-    /// 
+    /// Stop the movement
     /// </summary>
     public void StopMoving()
     {
@@ -119,23 +112,23 @@ public class MoveBetween : MonoBehaviour
         movingBackward = false;
     }
     /// <summary>
-    /// 
+    /// Continue the movement following the array
     /// </summary>
     public void ContinueMovingFordwards()
     {
         movingFordward = true;
     }
     /// <summary>
-    /// 
+    /// Continue the movement following the array in reverse order
     /// </summary>
     public void ContinueMovingBackward()
     {
         movingBackward = true;
     }
     /// <summary>
-    /// 
+    /// Start the movement following the array
     /// </summary>
-    /// <param name="newTime"></param>
+    /// <param name="newTime">The time to do the movement</param>
     public void StartMovingFordward(int newTime)
     {
         movingBackward = false;
@@ -148,9 +141,9 @@ public class MoveBetween : MonoBehaviour
         currentPosition = 0;
     }
     /// <summary>
-    /// 
+    /// Start the movement following the array in reverse order
     /// </summary>
-    /// <param name="newTime"></param>
+    /// <param name="newTime">The time to do the movement</param>
     public void StartMovingBackwards(int newTime)
     {
         movingBackward = true;
@@ -162,7 +155,9 @@ public class MoveBetween : MonoBehaviour
         currentTarget = targets[targets.Count - 1];
         currentPosition = targets.Count - 1;
     }
-
+    /// <summary>
+    /// Draw the route
+    /// </summary>
     private void OnDrawGizmosSelected()
     {
         for (int i = 0; i < targets.Count - 1; i++)
